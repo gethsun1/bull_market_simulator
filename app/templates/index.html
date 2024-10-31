@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}Portfolio Overview | Bull Market Simulator{% endblock %}
+
+{% block content %}
+    <div id="portfolio">
+        <h2>Portfolio Overview</h2>
+        <p>Cash Balance: ${{ portfolio.cash_balance }}</p>
+        <div id="stock-list">
+            <h3>Stocks</h3>
+            <ul>
+                {% for stock in stocks %}
+                    <li>{{ stock.name }} - ${{ stock.price }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <button onclick="triggerMarketEvent()">Check Market Condition</button>
+        <button onclick="buyStock()">Buy Stock</button>
+        <button onclick="sellStock()">Sell Stock</button>
+    </div>
+    <div id="market-event"></div>
+{% endblock %}
