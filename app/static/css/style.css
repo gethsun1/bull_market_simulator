@@ -1,76 +1,62 @@
+/* Overall Layout */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f5f7;
     color: #333;
-    margin: 0;
-    padding: 0;
 }
 
-/* Header Styling */
+/* Header and Navigation */
 .navbar {
     background-color: #2d3e50;
     color: #fff;
-    padding: 10px 0;
+    padding: 20px;
 }
-
-.navbar-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.navbar-brand {
-    font-size: 1.5em;
+.navbar-brand, .navbar-nav a {
     color: #fff;
     text-decoration: none;
-    font-weight: bold;
 }
-
-.navbar-nav {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    gap: 20px;
-}
-
-.navbar-nav li {
-    display: inline;
-}
-
-.navbar-nav a {
-    color: #fff;
-    text-decoration: none;
-    font-size: 1em;
-}
-
 .navbar-nav a:hover {
     text-decoration: underline;
 }
 
-/* Main Content */
-.main-content .container {
-    max-width: 1000px;
-    margin: 20px auto;
+/* Market Overview Section */
+.market-overview {
     padding: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-color: #e8eef1;
+    border-radius: 10px;
+    margin-bottom: 20px;
 }
 
-/* Footer Styling */
-.footer-content {
-    text-align: center;
+/* Portfolio Summary */
+.portfolio-overview {
     padding: 15px;
-    font-size: 0.9em;
-    color: #888;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 20px;
 }
-.footer-content a {
-    color: #2d3e50;
-    text-decoration: none;
+
+/* Stock List Section */
+.stock-list {
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow-y: auto;
+    max-height: 300px;
 }
-.footer-content a:hover {
-    text-decoration: underline;
+
+/* Search Bar */
+#stock-search {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+}
+
+/* Market Events Section */
+.market-events {
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 10px;
 }

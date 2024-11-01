@@ -1,62 +1,36 @@
 {% extends "layout.html" %}
 
-{% block title %}Portfolio Overview | Bull Market Simulator{% endblock %}
+{% block title %}Bull Market Simulator - Home{% endblock %}
 
 {% block content %}
-    <div id="portfolio">
-        <h2>Portfolio Overview</h2>
-        <p>Cash Balance: ${{ portfolio.cash_balance }}</p>
-        <div id="stock-list">
-            <h3>Stocks</h3>
-            <ul id="stocks-ul">
-                {% for stock in stocks %}
-                    <li id="stock-{{ stock.ticker }}">{{ stock.name }} - ${{ stock.price }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        <button onclick="triggerMarketEvent()">Check Market Condition</button>
-        <button onclick="buyStock()">Buy Stock</button>
-        <button onclick="sellStock()">Sell Stock</button>
+<div class="market-overview">
+    <h2>Welcome to Bull Market Simulator</h2>
+    <p>Simulate trading in a dynamic environment and experience real-time stock market events.</p>
+</div>
+
+<div class="portfolio-overview">
+    <h3>Portfolio Summary</h3>
+    <p>Cash Balance: <span id="cash-balance">${{ portfolio.cash_balance }}</span></p>
+</div>
+
+<div class="stock-list">
+    <h3>Stock Prices</h3>
+    <div id="stocks">
+        <ul>
+            {% for stock in stocks %}
+                <li>
+                    <span class="stock-name">{{ stock.name }} ({{ stock.ticker }})</span> -
+                    Price: ${{ stock.price }} - Volume: {{ stock.volume }} - Change: {{ stock.change }}
+                </li>
+            {% endfor %}
+        </ul>
     </div>
-    <div id="market-event"></div>
+</div>
 
-    <script>
-        async function fetchStockData() {
-            try {
-                const response = await fetch('https://nairobi-stock-exchange-nse.p.rapidapi.com/stocks', {
-                    method: 'GET',
-                    headers: {
-                        'x-rapidapi-host': 'nairobi-stock-exchange-nse.p.rapidapi.com',
-                        'x-rapidapi-key': '64e5499d05mshf4c762192029b45p14a558jsndd98c5a2f1a0'
-                    }
-                });
-                const data = await response.json();
-
-                const stockList = data.map(stock => {
-                    return {
-                        ticker: stock.ticker,
-                        name: stock.name,
-                        price: stock.price
-                    };
-                });
-
-                updateStockPrices(stockList);
-            } catch (error) {
-                console.error('Error fetching stock data:', error);
-            }
-        }
-
-        function updateStockPrices(stockList) {
-            stockList.forEach(stock => {
-                const stockElement = document.getElementById(`stock-${stock.ticker}`);
-                if (stockElement) {
-                    stockElement.innerText = `${stock.name} - $${stock.price}`;
-                }
-            });
-        }
-
-        // Call fetchStockData initially and set an interval for regular updates
-        fetchStockData();
-        setInterval(fetchStockData, 60000); // Refresh every minute
-    </script>
+<div class="market-events">
+    <h3>Latest Market Events</h3>
+    <div id="market-event-list">
+        <!-- This will display events triggered by the app -->
+    </div>
+</div>
 {% endblock %}

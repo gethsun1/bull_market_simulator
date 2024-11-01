@@ -1,44 +1,48 @@
-document.addEventListener("DOMContentLoaded", function() {
-    console.log("Bull Market Simulator Loaded");
+function updatePortfolio(data) {
+    const cashBalanceElement = document.getElementById("cash-balance");
+    cashBalanceElement.innerText = `$${data.cash_balance}`;
+}
 
-    // Mockup function to display a market event
-    function displayMarketEvent(event) {
-        const eventContainer = document.getElementById("market-event");
-        eventContainer.innerText = event;
-    }
+// Buy Stock function
+function buyStock() {
+    const stockId = prompt("Enter Stock ID:");
+    const stockName = prompt("Enter Stock Name:");
+    const stockPrice = parseFloat(prompt("Enter Stock Price:"));
+    const shares = parseInt(prompt("Enter number of shares to buy:"));
 
-    // Function to simulate market conditions
-    window.triggerMarketEvent = function() {
-        fetch('/market')
-            .then(response => response.json())
-            .then(data => {
-                displayMarketEvent(data.event);
-            });
-    };
+    fetch('/buy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stock_id: stockId, stock_name: stockName, stock_price: stockPrice, shares: shares })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.cash_balance) {
+            updatePortfolio(data);  // Update the cash balance in UI
+            alert(data.message);
+        } else {
+            alert("Transaction failed: " + data.message);
+        }
+    });
+}
 
-    // Function to handle stock buying
-    window.buyStock = function() {
-        const stockId = prompt("Enter Stock ID to Buy:");
-        const shares = prompt("Enter number of shares:");
-        fetch('/buy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock_id: stockId, shares: shares })
-        })
-        .then(response => response.json())
-        .then(data => alert(data.message));
-    };
+// Sell Stock function
+function sellStock() {
+    const stockName = prompt("Enter Stock Name:");
+    const shares = parseInt(prompt("Enter number of shares to sell:"));
 
-    // Function to handle stock selling
-    window.sellStock = function() {
-        const stockId = prompt("Enter Stock ID to Sell:");
-        const shares = prompt("Enter number of shares:");
-        fetch('/sell', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock_id: stockId, shares: shares })
-        })
-        .then(response => response.json())
-        .then(data => alert(data.message));
-    };
-});
+    fetch('/sell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ stock_name: stockName, shares: shares })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.cash_balance) {
+            updatePortfolio(data);  // Update the cash balance in UI
+            alert(data.message);
+        } else {
+            alert("Transaction failed: " + data.message);
+        }
+    });
+}
