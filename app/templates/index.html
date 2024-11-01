@@ -3,34 +3,145 @@
 {% block title %}Bull Market Simulator - Home{% endblock %}
 
 {% block content %}
-<div class="market-overview">
-    <h2>Welcome to Bull Market Simulator</h2>
-    <p>Simulate trading in a dynamic environment and experience real-time stock market events.</p>
-</div>
+<div class="container">
+    <div class="market-overview">
+        <h2>Welcome to Bull Market Simulator</h2>
+        <p>Simulate trading in a dynamic environment and experience real-time stock market events.</p>
+    </div>
 
-<div class="portfolio-overview">
-    <h3>Portfolio Summary</h3>
-    <p>Cash Balance: <span id="cash-balance">${{ portfolio.cash_balance }}</span></p>
-</div>
-
-<div class="stock-list">
-    <h3>Stock Prices</h3>
-    <div id="stocks">
-        <ul>
-            {% for stock in stocks %}
-                <li>
-                    <span class="stock-name">{{ stock.name }} ({{ stock.ticker }})</span> -
-                    Price: ${{ stock.price }} - Volume: {{ stock.volume }} - Change: {{ stock.change }}
-                </li>
+    <div class="portfolio-overview">
+        <h3>Portfolio Summary</h3>
+        <p>Cash Balance: <span id="cash-balance">${{ portfolio.cash_balance }}</span></p>
+        <h4>Your Stocks</h4>
+        <ul id="portfolio-stocks">
+            {% for stock_name, stock_info in portfolio.stocks.items() %}
+                <li>{{ stock_name }}: {{ stock_info.shares }} shares @ ${{ stock_info.stock_price }}</li>
+            {% else %}
+                <li>No stocks in portfolio.</li>
             {% endfor %}
         </ul>
     </div>
-</div>
 
-<div class="market-events">
-    <h3>Latest Market Events</h3>
-    <div id="market-event-list">
-        <!-- This will display events triggered by the app -->
+    <div class="trade-section">
+        <h3>Trade Stocks</h3>
+        <label for="stock-select">Select Stock:</label>
+        <select id="stock-select">
+            {% for stock in stocks %}
+                <option value="{{ stock.ticker }}" data-price="{{ stock.price }}">
+                    {{ stock.name }} ({{ stock.ticker }}) - ${{ stock.price }}
+                </option>
+            {% endfor %}
+        </select>
+        
+        <label for="shares-input">Shares:</label>
+        <input type="number" id="shares-input" min="1" placeholder="Enter shares">
+
+        <div class="trade-buttons">
+            <button onclick="buyStock()">Buy</button>
+            <button onclick="sellStock()">Sell</button>
+        </div>
+
+        <div id="transaction-result"></div>
+    </div>
+
+    <div class="stock-list">
+        <h3>Available Stocks</h3>
+        <div id="stocks" class="scrollable">
+            <ul>
+                {% for stock in stocks %}
+                    <li>
+                        <span class="stock-name">{{ stock.name }} ({{ stock.ticker }})</span> -
+                        Price: ${{ stock.price }} - Volume: {{ stock.volume }} - Change: {{ stock.change }}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="market-events">
+        <h3>Latest Market Events</h3>
+        <div id="market-event-list">
+            <!-- Event updates will be added here dynamically -->
+        </div>
     </div>
 </div>
+
+<script>
+    async function buyStock() {
+        const stockSelect = document.getElementById("stock-select");
+        const stockName = stockSelect.options[stockSelect.selectedIndex].text;
+        const stockTicker = stockSelect.value;
+        const stockPrice = parseFloat(stockSelect.options[stockSelect.selectedIndex].dataset.price);
+        const shares = parseInt(document.getElementById("shares-input").value);
+
+        if (isNaN(shares) || shares <= 0) {
+            alert("Please enter a valid number of shares.");
+            return;
+        }
+
+        const response = await fetch('/buy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stock_id: stockTicker, stock_name: stockName, stock_price: stockPrice, shares: shares })
+        });
+        const data = await response.json();
+        document.getElementById("transaction-result").innerText = data.message;
+        window.location.reload(); // Refresh to show updated balance and portfolio
+    }
+
+    async function sellStock() {
+        const stockSelect = document.getElementById("stock-select");
+        const stockName = stockSelect.options[stockSelect.selectedIndex].text;
+        const shares = parseInt(document.getElementById("shares-input").value);
+
+        if (isNaN(shares) || shares <= 0) {
+            alert("Please enter a valid number of shares.");
+            return;
+        }
+
+        const response = await fetch('/sell', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stock_name: stockName, shares: shares })
+        });
+        const data = await response.json();
+        document.getElementById("transaction-result").innerText = data.message;
+        window.location.reload(); // Refresh to show updated balance and portfolio
+    }
+</script>
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: auto;
+    }
+
+    .market-overview, .portfolio-overview, .trade-section, .stock-list, .market-events {
+        margin: 20px 0;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+    }
+
+    .scrollable {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .trade-section label {
+        margin-right: 10px;
+    }
+
+    .trade-buttons button {
+        margin-top: 10px;
+        margin-right: 5px;
+    }
+
+    #transaction-result {
+        margin-top: 10px;
+        color: green;
+        font-weight: bold;
+    }
+</style>
 {% endblock %}
