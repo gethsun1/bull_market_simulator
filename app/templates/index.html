@@ -8,9 +8,9 @@
         <p>Cash Balance: ${{ portfolio.cash_balance }}</p>
         <div id="stock-list">
             <h3>Stocks</h3>
-            <ul>
+            <ul id="stocks-ul">
                 {% for stock in stocks %}
-                    <li>{{ stock.name }} - ${{ stock.price }}</li>
+                    <li id="stock-{{ stock.ticker }}">{{ stock.name }} - ${{ stock.price }}</li>
                 {% endfor %}
             </ul>
         </div>
@@ -19,4 +19,44 @@
         <button onclick="sellStock()">Sell Stock</button>
     </div>
     <div id="market-event"></div>
+
+    <script>
+        async function fetchStockData() {
+            try {
+                const response = await fetch('https://nairobi-stock-exchange-nse.p.rapidapi.com/stocks', {
+                    method: 'GET',
+                    headers: {
+                        'x-rapidapi-host': 'nairobi-stock-exchange-nse.p.rapidapi.com',
+                        'x-rapidapi-key': '64e5499d05mshf4c762192029b45p14a558jsndd98c5a2f1a0'
+                    }
+                });
+                const data = await response.json();
+
+                const stockList = data.map(stock => {
+                    return {
+                        ticker: stock.ticker,
+                        name: stock.name,
+                        price: stock.price
+                    };
+                });
+
+                updateStockPrices(stockList);
+            } catch (error) {
+                console.error('Error fetching stock data:', error);
+            }
+        }
+
+        function updateStockPrices(stockList) {
+            stockList.forEach(stock => {
+                const stockElement = document.getElementById(`stock-${stock.ticker}`);
+                if (stockElement) {
+                    stockElement.innerText = `${stock.name} - $${stock.price}`;
+                }
+            });
+        }
+
+        // Call fetchStockData initially and set an interval for regular updates
+        fetchStockData();
+        setInterval(fetchStockData, 60000); // Refresh every minute
+    </script>
 {% endblock %}
