@@ -1,147 +1,846 @@
-{% extends "layout.html" %}
+<!DOCTYPE html>
+<html >
+<head>
+  
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+  <link rel="shortcut icon" href="https://r.mobirisesite.com/860326/assets/images/photo-1641979711529-60e97d21d1ba.jpeg" type="image/x-icon">
+  <meta name="description" content="Experience the thrill of trading with our Bull Market Trading Simulator. Manage your portfolio, track market events, and make informed trading decisions.">
+  <title>Trading Simulator</title>
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/web/assets/mobirise-icons2/mobirise2.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/bootstrap/css/bootstrap.min.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/bootstrap/css/bootstrap-grid.min.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/bootstrap/css/bootstrap-reboot.min.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/parallax/jarallax.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/dropdown/css/style.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/socicon/css/styles.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/theme/css/style.css?rnd=1730637093757">
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/recaptcha.css?rnd=1730637093757">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;700&display=swap&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;700&display=swap&display=swap"></noscript>
+  <link rel="stylesheet" href="https://r.mobirisesite.com/860326/assets/css/mbr-additional.css?rnd=1730637093757" type="text/css">
+  
+  
+  
+  
 
-{% block title %}Bull Market Simulator - Home{% endblock %}
-
-{% block content %}
-<div class="container">
-    <div class="market-overview">
-        <h2>Welcome to Bull Market Simulator</h2>
-        <p>Simulate trading in a dynamic environment and experience real-time stock market events.</p>
-    </div>
-
-    <div class="portfolio-overview">
-        <h3>Portfolio Summary</h3>
-        <p>Cash Balance: <span id="cash-balance">${{ portfolio.cash_balance }}</span></p>
-        <h4>Your Stocks</h4>
-        <ul id="portfolio-stocks">
-            {% for stock_name, stock_info in portfolio.stocks.items() %}
-                <li>{{ stock_name }}: {{ stock_info.shares }} shares @ ${{ stock_info.stock_price }}</li>
-            {% else %}
-                <li>No stocks in portfolio.</li>
-            {% endfor %}
-        </ul>
-    </div>
-
-    <div class="trade-section">
-        <h3>Trade Stocks</h3>
-        <label for="stock-select">Select Stock:</label>
-        <select id="stock-select">
-            {% for stock in stocks %}
-                <option value="{{ stock.ticker }}" data-price="{{ stock.price }}">
-                    {{ stock.name }} ({{ stock.ticker }}) - ${{ stock.price }}
-                </option>
-            {% endfor %}
-        </select>
-        
-        <label for="shares-input">Shares:</label>
-        <input type="number" id="shares-input" min="1" placeholder="Enter shares">
-
-        <div class="trade-buttons">
-            <button onclick="buyStock()">Buy</button>
-            <button onclick="sellStock()">Sell</button>
-        </div>
-
-        <div id="transaction-result"></div>
-    </div>
-
-    <div class="stock-list">
-        <h3>Available Stocks</h3>
-        <div id="stocks" class="scrollable">
-            <ul>
-                {% for stock in stocks %}
-                    <li>
-                        <span class="stock-name">{{ stock.name }} ({{ stock.ticker }})</span> -
-                        Price: ${{ stock.price }} - Volume: {{ stock.volume }} - Change: {{ stock.change }}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-
-    <div class="market-events">
-        <h3>Latest Market Events</h3>
-        <div id="market-event-list">
-            <!-- Event updates will be added here dynamically -->
-        </div>
-    </div>
-</div>
-
-<script>
-    async function buyStock() {
-        const stockSelect = document.getElementById("stock-select");
-        const stockName = stockSelect.options[stockSelect.selectedIndex].text;
-        const stockTicker = stockSelect.value;
-        const stockPrice = parseFloat(stockSelect.options[stockSelect.selectedIndex].dataset.price);
-        const shares = parseInt(document.getElementById("shares-input").value);
-
-        if (isNaN(shares) || shares <= 0) {
-            alert("Please enter a valid number of shares.");
-            return;
-        }
-
-        const response = await fetch('/buy', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock_id: stockTicker, stock_name: stockName, stock_price: stockPrice, shares: shares })
-        });
-        const data = await response.json();
-        document.getElementById("transaction-result").innerText = data.message;
-        window.location.reload(); // Refresh to show updated balance and portfolio
-    }
-
-    async function sellStock() {
-        const stockSelect = document.getElementById("stock-select");
-        const stockName = stockSelect.options[stockSelect.selectedIndex].text;
-        const shares = parseInt(document.getElementById("shares-input").value);
-
-        if (isNaN(shares) || shares <= 0) {
-            alert("Please enter a valid number of shares.");
-            return;
-        }
-
-        const response = await fetch('/sell', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stock_name: stockName, shares: shares })
-        });
-        const data = await response.json();
-        document.getElementById("transaction-result").innerText = data.message;
-        window.location.reload(); // Refresh to show updated balance and portfolio
-    }
-</script>
 
 <style>
-    .container {
-        max-width: 800px;
-        margin: auto;
-    }
+.navbar-fixed-top {
+  top: auto;
+}
+#mobiriseBanner.container-banner {
+  height: 8rem;
+  opacity: 1;
+  -webkit-animation: 4s linear animationHeight;
+  -moz-animation: 4s linear animationHeight;
+    -o-animation: 4s linear animationHeight;
+       animation: 4s linear animationHeight;
+       transition: all  0.5s;
+}
+#mobiriseBanner.container-banner.container-banner-closing {
+  pointer-events: none;
+  height: 0;
+  opacity: 0;
+  -webkit-animation: 0.5s linear animationClosing;
+  -moz-animation:  0.5s linear animationClosing;
+    -o-animation:  0.5s linear animationClosing;
+       animation:  0.5s linear animationClosing;
+}
+#mobiriseBanner .banner {
+  min-height: 8rem;
+  position:fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 10px;
+  opacity:1;
+  -webkit-animation: 4s linear animationBanner;
+  -moz-animation: 4s linear animationBanner;
+    -o-animation: 4s linear animationBanner;
+       animation: 4s linear animationBanner;
+  z-index: 1031;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+#mobiriseBanner .banner p {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  animation: none;
+  visibility: visible;
+}
+#mobiriseBanner .buy-license {
+  text-decoration: underline;
+}
+#mobiriseBanner .banner .btn {
+  margin: 0.3rem 0.5rem;
+  animation: none;
+  visibility: visible;
+}
+.navbar.opened {
+    z-index: 1032;
+}
+@-webkit-keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 75% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+@-moz-keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 75% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+@-o-keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 75% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+   @keyframes animationBanner { 0% { opacity: 0; top: -8rem; } 75% { opacity: 0; top: -8rem; } 100% { opacity: 1; top: 0; } }
+@-webkit-keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 8rem; } }
+@-moz-keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 8rem; } }
+@-o-keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 8rem; } }
+   @keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 8rem; } }
+   
+@-webkit-keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+@-moz-keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+@-o-keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+@keyframes animationClosing { 0% { height: 8rem; opacity: 1; } 30% { height: 8rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
 
-    .market-overview, .portfolio-overview, .trade-section, .stock-list, .market-events {
-        margin: 20px 0;
-        padding: 15px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        background-color: #f9f9f9;
-    }
+@media(max-width: 767px) {
+  #mobiriseBanner.container-banner {
+    height: 12rem;
+  }
+  #mobiriseBanner .banner {
+    min-height: 12rem;
+  }
+  @-webkit-keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 75% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+  @-moz-keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 75% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+  @-o-keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 75% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+    @keyframes animationBanner { 0% { opacity: 0; top: -12rem; } 75% { opacity: 0; top: -12rem; } 100% { opacity: 1; top: 0; } }
+  @-webkit-keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 12rem; } }
+  @-moz-keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 12rem; } }
+  @-o-keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 12rem; } }
+    @keyframes animationHeight { 0% { height: 0; } 75% { height: 0; } 100% { height: 12rem; } }
 
-    .scrollable {
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .trade-section label {
-        margin-right: 10px;
-    }
-
-    .trade-buttons button {
-        margin-top: 10px;
-        margin-right: 5px;
-    }
-
-    #transaction-result {
-        margin-top: 10px;
-        color: green;
-        font-weight: bold;
-    }
+  @-webkit-keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+  @-moz-keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+  @-o-keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+  @keyframes animationClosing { 0% { height: 12rem; opacity: 1; } 30% { height: 12rem; opacity: 0.5;} 100% { height: 0; opacity: 0;} }
+}
 </style>
-{% endblock %}
+</head>
+<body>
+
+  
+  <section data-bs-version="5.1" class="menu menu2 cid-ut09tfnF2o" once="menu" id="menu-5-ut09tfnF2o">
+	
+
+	<nav class="navbar navbar-dropdown navbar-fixed-top navbar-expand-lg">
+		<div class="container">
+			<div class="navbar-brand">
+				<span class="navbar-logo">
+					<a href="index.html#">
+						<img src="https://r.mobirisesite.com/860326/assets/images/photo-1641979711529-60e97d21d1ba.jpeg" alt="" style="height: 4.3rem;">
+					</a>
+				</span>
+				<span class="navbar-caption-wrap"><a class="navbar-caption text-black display-4" href="index.html#">Bullish</a></span>
+			</div>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbarSupportedContent" data-bs-target="#navbarSupportedContent" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+				<div class="hamburger">
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarSupportedContent">
+				<ul class="navbar-nav nav-dropdown" data-app-modern-menu="true">
+					<li class="nav-item">
+						<a class="nav-link link text-black display-4" href="index.html#">Home</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link link text-black display-4" href="index.html#" aria-expanded="false">Portfolio</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link link text-black display-4" href="index.html#">Market</a>
+					</li>
+				</ul>
+				
+				<div class="navbar-buttons mbr-section-btn">
+					<a class="btn btn-primary display-4" href="index.html#">Get Started</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+</section>
+
+<section data-bs-version="5.1" class="header18 cid-ut09tfnOER mbr-fullscreen" data-bg-video="https://www.youtube.com/embed/bwEpiw3wbyM?autoplay=1&amp;loop=1&amp;playlist=bwEpiw3wbyM&amp;t=20&amp;mute=1&amp;playsinline=1&amp;controls=0&amp;showinfo=0&amp;autohide=1&amp;allowfullscreen=true&amp;mode=transparent" id="hero-15-ut09tfnOER">
+  
+
+  <div class="mbr-overlay" style="opacity: 0.5; background-color: rgb(0, 0, 0);"></div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="content-wrap col-12 col-md-12">
+        <h1 class="mbr-section-title mbr-fonts-style mbr-white mb-4 display-1">
+          <strong>Trade Smart</strong>
+        </h1>
+        
+        <p class="mbr-fonts-style mbr-text mbr-white mb-4 display-7">Join the Bull Market Revolution and Maximize Your Profits!</p>
+        <div class="mbr-section-btn">
+          <a class="btn btn-white-outline display-7" href="index.html#">Start Trading</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-bs-version="5.1" class="pricing02 cid-ut09tfnrc7" id="product-list-9-ut09tfnrc7">
+    
+    
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-12 content-head">
+                <div class="mbr-section-head mb-5">
+                    <h4 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2">
+                        <strong>Stock Tiles</strong>
+                    </h4>
+                    
+                    
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="item features-image col-12 col-md-6 col-lg-4">
+                <div class="item-wrapper">
+                    <div class="item-img">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1642239817413-692565098d33.jpeg" alt="">
+                    </div>
+                    <div class="item-content">
+                        <h5 class="item-title mbr-fonts-style display-5">
+                            <strong>Tesla, Inc.</strong>
+                        </h5>
+                        <h6 class="item-subtitle mbr-fonts-style display-7">$250.00</h6>
+                        <p class="mbr-text mbr-fonts-style display-7">Electric car maker with a market cap that’s out of this world!</p>
+                        <div class="mbr-section-btn item-footer">
+                            <a href="index.html" class="btn item-btn btn-primary display-7">Buy Now</a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-lg-4">
+                <div class="item-wrapper">
+                    <div class="item-img">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1641198978584-cd2d9f15c996.jpeg" alt="">
+                    </div>
+                    <div class="item-content">
+                        <h5 class="item-title mbr-fonts-style display-5">
+                            <strong>Apple Inc.</strong>
+                        </h5>
+                        <h6 class="item-subtitle mbr-fonts-style display-7">$175.00</h6>
+                        <p class="mbr-text mbr-fonts-style display-7">The tech giant that keeps on giving. Invest in innovation!</p>
+                        <div class="mbr-section-btn item-footer">
+                            <a href="index.html" class="btn item-btn btn-primary display-7">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-lg-4">
+                <div class="item-wrapper">
+                    <div class="item-img">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1644361566696-3d442b5b482a.jpeg" alt="">
+                    </div>
+                    <div class="item-content">
+                        <h5 class="item-title mbr-fonts-style display-5">
+                            <strong>Amazon.com, Inc.</strong>
+                        </h5>
+                        <h6 class="item-subtitle mbr-fonts-style display-7">$140.00</h6>
+                        <p class="mbr-text mbr-fonts-style display-7">E-commerce behemoth that’s changing the way we shop. Don’t miss out!</p>
+                        <div class="mbr-section-btn item-footer">
+                            <a href="index.html" class="btn item-btn btn-primary display-7">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-lg-4">
+                <div class="item-wrapper">
+                    <div class="item-img">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1641956796980-406648b62f92.jpeg">
+                    </div>
+                    <div class="item-content">
+                        <h5 class="item-title mbr-fonts-style display-5">
+                            <strong>Microsoft Corp.</strong>
+                        </h5>
+                        <h6 class="item-subtitle mbr-fonts-style display-7">$300.00</h6>
+                        <p class="mbr-text mbr-fonts-style display-7">Software kingpin with a finger in every pie. Get your slice!</p>
+                        <div class="mbr-section-btn item-footer">
+                            <a href="index.html" class="btn item-btn btn-primary display-7">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-lg-4">
+                <div class="item-wrapper">
+                    <div class="item-img">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1639815188498-e23242c9c796.jpeg">
+                    </div>
+                    <div class="item-content">
+                        <h5 class="item-title mbr-fonts-style display-5">
+                            <strong>NVIDIA Corporation</strong>
+                        </h5>
+                        <h6 class="item-subtitle mbr-fonts-style display-7">$450.00</h6>
+                        <p class="mbr-text mbr-fonts-style display-7">The graphics card guru powering the AI revolution. Invest in the future!</p>
+                        <div class="mbr-section-btn item-footer">
+                            <a href="index.html" class="btn item-btn btn-primary display-7">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-lg-4">
+                <div class="item-wrapper">
+                    <div class="item-img">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1640161704729-cbe966a08476.jpeg">
+                    </div>
+                    <div class="item-content">
+                        <h5 class="item-title mbr-fonts-style display-5">
+                            <strong>Meta Platforms, Inc.</strong>
+                        </h5>
+                        <h6 class="item-subtitle mbr-fonts-style display-7">$350.00</h6>
+                        <p class="mbr-text mbr-fonts-style display-7">Social media titan with a vision for the metaverse. Join the ride!</p>
+                        <div class="mbr-section-btn item-footer">
+                            <a href="index.html" class="btn item-btn btn-primary display-7">Buy Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="clients04 cid-ut09tfo3R7" id="partners-1-ut09tfo3R7">
+    
+    
+    <div class="container-fluid">
+        <div class="row justify-content-center mb-5">
+            <div class="col-12 content-head">
+                <div class="mbr-section-head">
+                    <h4 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2">
+                        <strong>Trusted Partners</strong>
+                    </h4>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="item features-image col-12 col-md-6 col-sm-6 col-lg-2 active">
+                <div class="item-wrapper">
+                    <div class="">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1554463529-e27854014799.jpeg" alt="" title="" data-slide-to="1" data-bs-slide-to="1">
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-sm-6 col-lg-2">
+                <div class="item-wrapper">
+                    <div class="">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1617727553252-65863c156eb0.jpeg" alt="" title="" data-slide-to="2" data-bs-slide-to="2">
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-sm-6 col-lg-2">
+                <div class="item-wrapper">
+                    <div class="">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1651853082689-706323a31427.jpeg" alt="" title="" data-slide-to="3" data-bs-slide-to="3">
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-sm-6 col-lg-2">
+                <div class="item-wrapper">
+                    <div class="">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1606136968306-ab2868cc1f21.jpeg" alt="" title="" data-slide-to="4" data-bs-slide-to="4">
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-sm-6 col-lg-2">
+                <div class="item-wrapper">
+                    <div class="">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1651044450619-5ce74d316987.jpeg" alt="" title="" data-slide-to="5" data-bs-slide-to="5">
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="item features-image col-12 col-md-6 col-sm-6 col-lg-2">
+                <div class="item-wrapper">
+                    <div class="">
+                        <img src="https://r.mobirisesite.com/860326/assets/images/photo-1502828331539-51c709e80300.jpeg" alt="" title="" data-slide-to="6" data-bs-slide-to="6">
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="features03 cid-ut09tfp7Fz" id="news-1-ut09tfp7Fz">
+  
+  
+  <div class="container-fluid">
+    <div class="row justify-content-center mb-5">
+      <div class="col-12 content-head">
+        <div class="mbr-section-head">
+          <h4 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2">
+            <strong>Market Buzz</strong>
+          </h4>
+          
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="item features-image col-12 col-md-6 col-lg-3 active">
+        <div class="item-wrapper">
+          <div class="item-img mb-3">
+            <img src="https://r.mobirisesite.com/860326/assets/images/photo-1639762681485-074b7f938ba0.jpeg" alt="" title="">
+          </div>
+          <div class="item-content align-left">
+            <h5 class="item-title mbr-fonts-style mt-0 mb-2 display-5">
+              <strong>Tesla Hits New All-Time High</strong>
+            </h5>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">November 1, 2024</p>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">Tesla’s stock skyrocketed after record deliveries. Are you on board?</p>
+            <div class="mbr-section-btn item-footer">
+              <a href="index.html" class="btn item-btn btn-primary display-7">Read</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item features-image col-12 col-md-6 col-lg-3">
+        <div class="item-wrapper">
+          <div class="item-img mb-3">
+            <img src="https://r.mobirisesite.com/860326/assets/images/photo-1534951009808-766178b47a4f.jpeg" alt="" title="" data-slide-to="1" data-bs-slide-to="1">
+          </div>
+          <div class="item-content align-left">
+            <h5 class="item-title mbr-fonts-style mb-2 mt-0 display-5">
+              <strong>Apple Unveils New iPhone Model</strong>
+            </h5>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">October 30, 2024</p>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">Apple’s latest gadget is here! Will it boost their stock?</p>
+            <div class="mbr-section-btn item-footer">
+              <a href="index.html" class="btn item-btn btn-primary display-7">Read</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item features-image col-12 col-md-6 col-lg-3">
+        <div class="item-wrapper">
+          <div class="item-img mb-3">
+            <img src="https://r.mobirisesite.com/860326/assets/images/photo-1641802471091-ce8736305358.jpeg" alt="" title="" data-slide-to="2" data-bs-slide-to="2">
+          </div>
+          <div class="item-content align-left">
+            <h5 class="item-title mbr-fonts-style mb-2 mt-0 display-5">
+              <strong>Amazon Prime Day Sales Soar</strong>
+            </h5>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">October 28, 2024</p>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">Amazon’s sales hit record highs. Time to invest?</p>
+            <div class="mbr-section-btn item-footer">
+              <a href="index.html" class="btn item-btn btn-primary display-7">Read</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item features-image col-12 col-md-6 col-lg-3">
+        <div class="item-wrapper">
+          <div class="item-img mb-3">
+            <img src="https://r.mobirisesite.com/860326/assets/images/photo-1641543814559-7c7e7bda71de.jpeg" alt="" title="" data-slide-to="2" data-bs-slide-to="2">
+          </div>
+          <div class="item-content align-left">
+            <h5 class="item-title mbr-fonts-style mb-2 mt-0 display-5">
+              <strong>NVIDIA Launches New AI Chip</strong>
+            </h5>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">October 25, 2024</p>
+            <p class="mbr-text mbr-fonts-style mb-3 display-7">NVIDIA’s new chip is a game changer. Don’t miss out!</p>
+            <div class="mbr-section-btn item-footer">
+              <a href="index.html" class="btn item-btn btn-primary display-7">Read</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-bs-version="5.1" class="header18 cid-ut09tfp1D6 mbr-fullscreen" data-bg-video="https://www.youtube.com/embed/koPkElMab4U?autoplay=1&amp;loop=1&amp;playlist=koPkElMab4U&amp;t=20&amp;mute=1&amp;playsinline=1&amp;controls=0&amp;showinfo=0&amp;autohide=1&amp;allowfullscreen=true&amp;mode=transparent" id="video-5-ut09tfp1D6">
+  
+
+  <div class="mbr-overlay" style="opacity: 0.3; background-color: rgb(0, 0, 0);"></div>
+  <div class="container-fluid">
+    <div class="row">
+    </div>
+  </div>
+</section>
+
+<section data-bs-version="5.1" class="people07 cid-ut09tfpd0o" id="testimonials-8-ut09tfpd0o">
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12 col-lg-8">
+                <p class="card-text mbr-fonts-style display-5">This simulator transformed my trading game!</p>
+                <div class="img-wrapper mt-3 justify-content-center">
+                    <img src="https://r.mobirisesite.com/860326/assets/images/photo-1662795854059-547d94855285.jpeg" alt="" data-slide-to="0" data-bs-slide-to="0">
+                </div>
+                <p class="card-title mbr-fonts-style mt-3 display-7">
+                    <strong>John Smith</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="image02 cid-ut09tfpIkb mbr-fullscreen mbr-parallax-background" id="image-13-ut09tfpIkb">
+    
+    
+    <div class="container">
+        <div class="row"></div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="gallery4 cid-ut09tfpzzM" id="gallery-12-ut09tfpzzM">
+  
+  
+  <div class="container-fluid gallery-wrapper">
+    <div class="row justify-content-center">
+      <div class="col-12 content-head">
+        
+      </div>
+    </div>
+    <div class="grid-container">
+      <div class="grid-container-1" style="transform: translate3d(-200px, 0px, 0px);">
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1641179497501-6c9dff21382d.jpeg" alt="">
+        </div>
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1642466311141-7bed50c8696b.jpeg" alt="">
+        </div>
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1641197861542-83e511654ac0.jpeg" alt="">
+        </div>
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1601597111158-2fceff292cdc.jpeg" alt="">
+        </div>
+      </div>
+      <div class="grid-container-2" style="transform: translate3d(-70px, 0px, 0px);">
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1641353104559-4c070b03282b.jpeg" alt="">
+        </div>
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1642388813992-f12b04ba3db0.jpeg" alt="">
+        </div>
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1652151368404-d9b0e7713bdb.jpeg" alt="">
+        </div>
+        <div class="grid-item">
+          <img src="https://r.mobirisesite.com/860326/assets/images/photo-1640592409070-e35e28aedf14.jpeg" alt="">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-bs-version="5.1" class="list05 cid-ut09tfpfcs" id="faq-3-ut09tfpfcs">
+    
+    <div class="container">
+        <div class="col-12 mb-5 content-head">
+            <h3 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2">
+                <strong>Frequently Asked Questions</strong>
+            </h3>
+            
+        </div>
+        <div class="row justify-content-center ">
+            <div class="col-12 col-lg-8">
+                <div class="item features-without-image col-12 active">
+                    <div class="item-wrapper">
+                        <h5 class="mbr-card-title mbr-fonts-style mt-0 mb-3 display-5">
+                            <strong>What is a Bull Market Simulator?</strong></h5>
+                        <p class="mbr-text mbr-fonts-style mt-0 mb-3 display-7">A platform to practice trading in a bull market.</p>
+                    </div>
+                </div>
+                <div class="item features-without-image col-12">
+                    <div class="item-wrapper">
+                        <h5 class="mbr-card-title mbr-fonts-style mt-0 mb-3 display-5">
+                            <strong>How do I start trading?</strong></h5>
+                        <p class="mbr-text mbr-fonts-style mt-0 mb-3 display-7">Sign up, fund your account, and start trading!</p>
+                    </div>
+                </div>
+                <div class="item features-without-image col-12">
+                    <div class="item-wrapper">
+                        <h5 class="mbr-card-title mbr-fonts-style mt-0 mb-3 display-5">
+                            <strong>Can I track my portfolio?</strong></h5>
+                        <p class="mbr-text mbr-fonts-style mt-0 mb-3 display-7">Absolutely! Your portfolio is always visible.</p>
+                    </div>
+                </div>
+                <div class="item features-without-image col-12">
+                  <div class="item-wrapper">
+                      <h5 class="mbr-card-title mbr-fonts-style mt-0 mb-3 display-5">
+                          <strong>Are there fees for trading?</strong></h5>
+                      <p class="mbr-text mbr-fonts-style mt-0 mb-3 display-7">No hidden fees, just pure trading fun!</p>
+                  </div>
+              </div>
+              <div class="item features-without-image col-12">
+                <div class="item-wrapper">
+                    <h5 class="mbr-card-title mbr-fonts-style mt-0 mb-3 display-5">
+                        <strong>What stocks can I trade?</strong></h5>
+                    <p class="mbr-text mbr-fonts-style mt-0 mb-3 display-7">Trade popular stocks like Apple, Tesla, and more!</p>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="features10 cid-ut09tfqb1c" id="metrics-2-ut09tfqb1c">
+  
+
+  
+  
+  <div class="container">
+    
+    <div class="row justify-content-center">
+      <div class="item features-without-image col-12 col-md-6 col-lg-4">
+        <div class="item-wrapper">
+          <div class="card-box align-left">
+            
+            <p class="card-title mbr-fonts-style mb-3 display-1">
+              <strong>$1,000,000</strong>
+            </p>
+            <p class="card-text mbr-fonts-style mb-3 display-7">Your Starting Capital!</p>
+            
+          </div>
+        </div>
+      </div>
+      <div class="item features-without-image col-12 col-md-6 col-lg-4">
+        <div class="item-wrapper">
+          <div class="card-box align-left">
+            
+            <p class="card-title mbr-fonts-style mb-3 display-1">
+              <strong>500+</strong>
+            </p>
+            <p class="card-text mbr-fonts-style mb-3 display-7">Stocks Available!</p>
+            
+          </div>
+        </div>
+      </div>
+      <div class="item features-without-image col-12 col-md-6 col-lg-4">
+        <div class="item-wrapper">
+          <div class="card-box align-left">
+            
+            <p class="card-title mbr-fonts-style mb-3 display-1">
+              <strong>99%</strong>
+            </p>
+            <p class="card-text mbr-fonts-style mb-3 display-7">User Satisfaction!</p>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-bs-version="5.1" class="features035 cid-ut09tfqd7c" id="call-to-action-11-ut09tfqd7c">
+    
+
+    
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-9 active">
+                <div class="item-wrapper">
+                    <div class="card-box">
+                        <h4 class="card-text mbr-fonts-style display-7">Join the Bull Market Revolution Today!</h4>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-3 active">
+                <div class="mbr-section-btn">
+                    <a class="btn btn-primary display-7" href="index.html#">Start Trading Now!</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="gallery10 cid-ut09tfqZx0" id="features-61-ut09tfqZx0">
+  
+
+
+  <div class="container-fluid">
+
+      <div class="loop-container">
+        <div class="item display-1" data-linewords="Real-Time Data * User-Friendly Interface * Instant Alerts * Diverse Stocks * Secure Transactions * Expert Insights *" data-direction="-1" data-speed="0.05">☁️ Best offers ☁️ Free delivery ☁️ Perfect design ☁️ Comfort ☁️ Support 24/7 ☁️ Vibes</div>
+
+        <div class="item display-1" data-linewords="Real-Time Data * User-Friendly Interface * Instant Alerts * Diverse Stocks * Secure Transactions * Expert Insights *" data-direction="-1" data-speed="0.05">☁️ Best offers ☁️ Free delivery ☁️ Perfect design ☁️ Comfort ☁️ Support 24/7 ☁️ Vibes</div>
+      </div>
+    
+  </div>
+</section>
+
+<section data-bs-version="5.1" class="social05 cid-ut09tfqY37" id="follow-us-2-ut09tfqY37">
+    
+
+    
+
+    <div class="container">
+        <div class="row">
+            <h3 class="mbr-section-title align-center mb-5 mbr-fonts-style display-2">
+                <strong>Join the Trading Revolution!</strong>
+            </h3>
+            <div class="col-12">
+                <div class="social-row">
+                    <div class="soc-item">
+                        <a href="index.html#" target="_blank">
+                            <span class="mbr-iconfont socicon socicon-facebook"></span>
+                        </a>
+                    </div>
+                    <div class="soc-item">
+                        <a href="index.html#" target="_blank">
+                            <span class="mbr-iconfont socicon-twitter socicon"></span>
+                        </a>
+                    </div>
+                    <div class="soc-item">
+                        <a href="index.html#" target="_blank">
+                            <span class="mbr-iconfont socicon-instagram socicon"></span>
+                        </a>
+                    </div>
+                    <div class="soc-item">
+                        <a href="index.html#" target="_blank">
+                            <span class="mbr-iconfont socicon socicon-linkedin"></span>
+                        </a>
+                    </div>
+                    <div class="soc-item">
+                        <a href="index.html#" target="_blank">
+                            <span class="mbr-iconfont socicon socicon-twitch"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="form5 cid-ut09tfr0aG" id="contact-form-2-ut09tfr0aG">
+    
+    
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 content-head">
+                <div class="mbr-section-head mb-5">
+                    <h3 class="mbr-section-title mbr-fonts-style align-center mb-0 display-2">
+                        <strong>Get in Touch!</strong>
+                    </h3>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 mx-auto mbr-form" data-form-type="formoid">
+                <form action="https://mobirise.eu/" method="POST" class="mbr-form form-with-styler" data-form-title="Form Name"><input type="hidden" name="email" data-form-email="true" value="CtlZtwjDgz0LfxFg3dfEI3COimsukDL/676dNzVA++8w61dDoF8Rza3t1ZKHox0IQBWDNOqBv4f+LBVh8vk0nNN0gdycvdCJOxHJL5J9BXos60LmVbVBbN2teGUddSzM">
+                    <div class="row">
+                        <div hidden="hidden" data-form-alert="" class="alert alert-success col-12">Thanks for filling out the form!</div>
+                        <div hidden="hidden" data-form-alert-danger="" class="alert alert-danger col-12">
+                            Oops...! some problem!
+                        </div>
+                    </div>
+                    <div class="dragArea row">
+                        <div class="col-md col-sm-12 form-group mb-3" data-for="name">
+                            <input type="text" name="name" placeholder="Name" data-form-field="name" class="form-control" value="" id="name-contact-form-2-ut09tfr0aG">
+                        </div>
+                        <div class="col-md col-sm-12 form-group mb-3" data-for="email">
+                            <input type="email" name="email" placeholder="Email" data-form-field="email" class="form-control" value="" id="email-contact-form-2-ut09tfr0aG">
+                        </div>
+                        <div class="col-12 form-group mb-3" data-for="textarea">
+                            <textarea name="textarea" placeholder="Message" data-form-field="textarea" class="form-control" id="textarea-contact-form-2-ut09tfr0aG"></textarea>
+                        </div>
+                        <div class="col-lg-12 col-md-12 col-sm-12 align-center mbr-section-btn">
+                            <button type="submit" class="btn btn-primary display-7">Send It!</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section data-bs-version="5.1" class="contacts03 cid-ut09tfrfnu" id="contacts-11-ut09tfrfnu">
+  
+
+  
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-4">
+        <div class="col-12 col-md-12">
+          <h5 class="mbr-section-title mbr-fonts-style mt-0 mb-4 display-2">
+            <strong>Contact Us</strong>
+          </h5>
+          <p class="mbr-section-subtitle mbr-fonts-style mt-0 mb-4 display-7">
+            Phone: +1-800-555-0199
+            <br>Email: support@bullmarket.com
+            <br>Address: Nairobi Kenya
+            <br>Working Hours: Mon-Fri: 9am - 5pm
+          </p> 
+
+          
+        </div>
+      </div>
+        <div class="col-lg-8 side-features">
+        <div class="google-map"><iframe frameborder="0" style="border:0" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d6045.3003145248895!2d-73.9884657!3d40.7477229!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c259a9ac1f1b85%3A0x7e33d1c0e7af3be4!2zMzUwIDV0aCBBdmUsIE5ldyBZb3JrLCBOWSAxMDExOCwg0KHQqNCQ!5e0!3m2!1sru!2sru!4v1689597362021!5m2!1sen!2sen" allowfullscreen=""></iframe></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section data-bs-version="5.1" class="footer2 cid-ut09tfrhYP" once="footers" id="footer-5-ut09tfrhYP">
+    
+
+    
+    
+
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-lg-6 center mt-2 mb-3">
+                <p class="mbr-fonts-style copyright mb-0 display-7">© 2024 Bull Market Trading Simulator. All rights reserved.</p>
+            </div>
+            <div class="col-12 col-lg-6 center">
+                <div class="row-links mt-2 mb-3">
+                    <ul class="row-links-soc">
+                        
+                        
+                        
+                        
+                    <li class="row-links-soc-item mbr-fonts-style display-7">
+                            <a href="index.html#" class="text-white">Privacy</a>
+                        </li><li class="row-links-soc-item mbr-fonts-style display-7">
+                            <a href="index.html#" class="text-white">Terms</a>
+                        </li><li class="row-links-soc-item mbr-fonts-style display-7">
+                            <a href="index.html#" class="text-white">Contact</a>
+                        </li><li class="row-links-soc-item mbr-fonts-style display-7">
+                            <a href="index.html#" class="text-white">Support</a>
+                        </li></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+  <script src="https://r.mobirisesite.com/860326/assets/web/assets/jquery/jquery.min.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/bootstrap/js/bootstrap.bundle.min.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/parallax/jarallax.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/smoothscroll/smooth-scroll.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/ytplayer/index.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/dropdown/js/navbar-dropdown.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/vimeoplayer/player.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/scrollgallery/scroll-gallery.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/theme/js/script.js?rnd=1730637093758"></script>
+  <script src="https://r.mobirisesite.com/860326/assets/formoid.min.js?rnd=1730637093758"></script>
+  
+  
+  
+
+</body>
+</html>
+
